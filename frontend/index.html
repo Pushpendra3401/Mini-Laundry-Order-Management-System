@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laundry Order Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-light">
+    <nav class="navbar navbar-dark bg-primary mb-4">
+        <div class="container">
+            <a class="navbar-brand" href="#">🧺 Mini Laundry OS</a>
+            <div id="authLinks">
+                <button id="logoutBtn" class="btn btn-outline-light btn-sm d-none">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Login Section -->
+        <div id="loginSection" class="row justify-content-center">
+            <div class="col-md-4">
+                <div class="card shadow">
+                    <div class="card-body">
+                        <h3 class="card-title text-center mb-4">Login</h3>
+                        <form id="loginForm">
+                            <div class="mb-3">
+                                <label class="form-label">Username</label>
+                                <input type="text" id="loginUsername" class="form-control" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Password</label>
+                                <input type="password" id="loginPassword" class="form-control" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">Login</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Section -->
+        <div id="dashboardSection" class="d-none">
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="card bg-info text-white shadow">
+                        <div class="card-body">
+                            <h6>Total Orders</h6>
+                            <h2 id="totalOrders">0</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-success text-white shadow">
+                        <div class="card-body">
+                            <h6>Total Revenue</h6>
+                            <h2 id="totalRevenue">$0</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-warning text-dark shadow">
+                        <div class="card-body">
+                            <h6>Avg Process Time</h6>
+                            <h2 id="avgTime">0 days</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card shadow">
+                        <div class="card-body">
+                            <h6>Orders by Status</h6>
+                            <div id="statusBreakdown" class="d-flex flex-wrap gap-2 pt-2">
+                                <!-- Status badges will be injected here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="card shadow mb-4">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">Recent Orders</h5>
+                            <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#orderModal">New Order</button>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Order ID</th>
+                                            <th>Customer</th>
+                                            <th>Garments</th>
+                                            <th>Amount</th>
+                                            <th>Status</th>
+                                            <th>Delivery</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="ordersTableBody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card shadow">
+                        <div class="card-header">
+                            <h5 class="mb-0">Filter Orders</h5>
+                        </div>
+                        <div class="card-body">
+                            <form id="filterForm">
+                                <div class="mb-3">
+                                    <input type="text" id="filterName" class="form-control" placeholder="Customer Name">
+                                </div>
+                                <div class="mb-3">
+                                    <input type="text" id="filterPhone" class="form-control" placeholder="Phone Number">
+                                </div>
+                                <div class="mb-3">
+                                    <input type="text" id="filterGarment" class="form-control" placeholder="Garment Type (e.g. Shirt)">
+                                </div>
+                                <div class="mb-3">
+                                    <select id="filterStatus" class="form-select">
+                                        <option value="">All Statuses</option>
+                                        <option value="RECEIVED">RECEIVED</option>
+                                        <option value="PROCESSING">PROCESSING</option>
+                                        <option value="READY">READY</option>
+                                        <option value="DELIVERED">DELIVERED</option>
+                                    </select>
+                                </div>
+                                <button type="submit" class="btn btn-secondary w-100">Apply Filter</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- New Order Modal -->
+    <div class="modal fade" id="orderModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Create New Order</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="orderForm">
+                        <div class="mb-3">
+                            <label class="form-label">Customer Name</label>
+                            <input type="text" id="customerName" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Phone Number</label>
+                            <input type="text" id="phoneNumber" class="form-control" required>
+                        </div>
+                        <div id="garmentsList">
+                            <div class="garment-item row mb-2">
+                                <div class="col-8">
+                                    <select class="form-select garment-type" required>
+                                        <option value="Shirt">Shirt ($10)</option>
+                                        <option value="Pants">Pants ($15)</option>
+                                        <option value="Saree">Saree ($50)</option>
+                                        <option value="Suit">Suit ($100)</option>
+                                    </select>
+                                </div>
+                                <div class="col-4">
+                                    <input type="number" class="form-control garment-qty" placeholder="Qty" value="1" min="1" required>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" id="addGarment" class="btn btn-outline-secondary btn-sm mb-3">+ Add Item</button>
+                        <button type="submit" class="btn btn-primary w-100">Create Order</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
