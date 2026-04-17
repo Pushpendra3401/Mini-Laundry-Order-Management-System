@@ -20,7 +20,14 @@ const protect = async (req, res, next) => {
       if (isDbConnected() && mongoose.Types.ObjectId.isValid(decoded.id)) {
         req.user = await User.findById(decoded.id).select('-password');
       } else {
+        // In-memory/Stateless Demo Mode
         req.user = memoryStorage.users.find(u => u._id === decoded.id);
+        
+        // If not in memory (due to Vercel statelessness), but it's the admin-id, 
+        // reconstruct the admin user object
+        if (!req.user && decoded.id === 'admin-id') {
+          req.user = { _id: 'admin-id', username: 'admin' };
+        }
       }
 
       if (!req.user) {
