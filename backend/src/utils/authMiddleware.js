@@ -13,8 +13,9 @@ const protect = async (req, res, next) => {
   ) {
     try {
       token = req.headers.authorization.split(' ')[1];
+      const secret = process.env.JWT_SECRET || 'fallback_secret_for_demo_mode';
 
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const decoded = jwt.verify(token, secret);
 
       if (isDbConnected() && mongoose.Types.ObjectId.isValid(decoded.id)) {
         req.user = await User.findById(decoded.id).select('-password');
