@@ -39,17 +39,19 @@ loginForm.addEventListener('submit', async (e) => {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ username, password })
         });
+        
         const data = await res.json();
-        if (data.token) {
+        if (res.ok && data.token) {
             token = data.token;
             localStorage.setItem('token', token);
             checkAuth();
         } else {
-            alert(data.message || 'Login failed');
+            console.error('Login error:', data);
+            alert(data.message || 'Login failed. Please check credentials.');
         }
     } catch (err) {
-        console.error(err);
-        alert('Error logging in');
+        console.error('Network error during login:', err);
+        alert('Network error: Could not reach the server. Please check your connection or redeploy.');
     }
 });
 

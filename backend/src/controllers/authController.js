@@ -54,30 +54,44 @@ const authUser = async (req, res, next) => {
     if (isDbConnected()) {
       const user = await User.findOne({ username });
       if (user && (await user.matchPassword(password))) {
-        res.json({
+        return res.json({
           _id: user._id,
           username: user.username,
           token: generateToken(user._id),
         });
-      } else {
-        res.status(401);
-        throw new Error('Invalid username or password');
       }
-    } else {
-      // In-memory auth
-      // Add a default demo user if empty
-      if (memoryStorage.users.length === 0 && username === 'admin' && password === 'admin') {
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash('admin', salt);
-        memoryStorage.users.push({ _id: 'admin-id', username: 'admin', password: hashedPassword });
+      
+      // Fallback for empty database: Allow admin/admin if no users exist
+      const userCount = await User.countDocuments();
+      if (userCount === 0 && username === 'admin' && password === 'admin') {
+        // Create the admin user in the database
+        const newUser = await User.create({ username, password });
+        return res.json({
+          _id: newUser._id,
+          username: newUser.username,
+          token: generateToken(newUser._id),
+        });
       }
 
-      const user = memoryStorage.users.find(u => u.username === username);
-      if (user && (await bcrypt.compare(password, user.password))) {
-        res.json({
-          _id: user._id,
-          username: user.username,
-          token: generateToken(user._id),
+      res.status(401);
+      throw new Error('Invalid username or password');
+    } else {
+      // In-memory auth
+      // Add a default demo user if not exists
+      let user = memoryStorage.users.find(u => u.username === 'admin');
+      if (!user && username === 'admin' && password === 'admin') {
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash('admin', salt);
+        user = { _id: 'admin-id', username: 'admin', password: hashedPassword };
+        memoryStorage.users.push(user);
+      }
+
+      const foundUser = memoryStorage.users.find(u => u.username === username);
+      if (foundUser && (await bcrypt.compare(password, foundUser.password))) {
+        return res.json({
+          _id: foundUser._id,
+          username: foundUser.username,
+          token: generateToken(foundUser._id),
         });
       } else {
         res.status(401);
