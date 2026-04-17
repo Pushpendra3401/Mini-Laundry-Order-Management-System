@@ -103,8 +103,13 @@ const updateOrderStatus = async (id, newStatus) => {
     order.status = newStatus;
     return await order.save();
   } else {
+    // Check if ID is a timestamp (from memoryStorage) or a Mongo ID
     const order = memoryStorage.orders.find(o => o._id === id);
-    if (!order) throw new Error('Order not found');
+    if (!order) {
+      // In Demo Mode on Vercel, we can't update orders across requests because memory is cleared.
+      // We throw a more descriptive error.
+      throw new Error('Order not found (Demo Mode: Orders are temporary and cleared when the server restarts)');
+    }
     order.status = newStatus;
     order.updatedAt = new Date();
     return order;
